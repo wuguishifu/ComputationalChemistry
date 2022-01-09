@@ -6,25 +6,23 @@ import java.util.ArrayList;
 
 public class GraphDisplay {
 
-    public JFrame frame;
-    public JPanel panel;
+    private final JPanel panel;
 
-    public ArrayList<GraphRenderer> renderers;
+    private GraphRenderer renderer;
+    private Dimension windowSize;
 
     public GraphDisplay(Dimension windowSize) {
-        renderers = new ArrayList<>();
-        frame = new JFrame();
+        this.windowSize = windowSize;
+        JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         panel = new JPanel() {
             @Override
             public void paint(Graphics g) {
                 super.paint(g);
-                for (GraphRenderer renderer : renderers) {
-                    Graphics2D g2d = (Graphics2D) g.create();
-                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    renderer.paint(g2d);
-                }
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                renderer.paint(g2d);
             }
         };
         panel.setPreferredSize(windowSize);
@@ -38,7 +36,20 @@ public class GraphDisplay {
         panel.repaint();
     }
 
-    public void addRenderer(GraphRenderer gr) {
-        this.renderers.add(gr);
+    public void setRenderer(GraphRenderer gr) {
+        this.renderer = gr;
     }
+
+    public void setWindowSize(Dimension windowSize) {
+        this.windowSize = windowSize;
+    }
+
+    public Dimension getWindowSize() {
+        return this.windowSize;
+    }
+
+    public ArrayList<GraphSeries> getSeries() {
+        return renderer.getSeries();
+    }
+
 }

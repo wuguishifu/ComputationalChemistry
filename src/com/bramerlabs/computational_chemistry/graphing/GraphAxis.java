@@ -2,143 +2,131 @@ package com.bramerlabs.computational_chemistry.graphing;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.HashMap;
 
 public class GraphAxis {
 
-    public static final String COLOR = "color";
-    public static final String TEXT_SIZE = "text_size";
-    public static final String SCIENTIFIC_NOTATION = "scientific_notation";
+    private final GraphProperties props;
 
-    public static final HashMap<String, Color> colors;
-    static {
-        colors = new HashMap<>();
-        colors.put("red", Color.RED);
-        colors.put("orange", Color.ORANGE);
-        colors.put("yellow", Color.YELLOW);
-        colors.put("green", Color.GREEN);
-        colors.put("blue", Color.BLUE);
-        colors.put("magenta", Color.MAGENTA);
-        colors.put("cyan", Color.CYAN);
-        colors.put("black", Color.BLACK);
-        colors.put("r", Color.RED);
-        colors.put("o", Color.ORANGE);
-        colors.put("y", Color.YELLOW);
-        colors.put("g", Color.GREEN);
-        colors.put("b", Color.BLUE);
-        colors.put("m", Color.MAGENTA);
-        colors.put("c", Color.CYAN);
-        colors.put("k", Color.BLACK);
+    private String label;
+    private int numIntervals;
+    private String orientation;
+
+    private String numberFormat;
+
+    private Font labelFont;
+    private Font markFont;
+
+    private Color labelColor;
+    private Color markColor;
+
+    private Color lineColor;
+
+    public GraphAxis(String[][] props) {
+        this.props = new GraphProperties(props);
+        this.updateProperties();
     }
 
-    public static final int AXIS_X = 0, AXIS_Y = 1;
+    public GraphAxis(String... varargs) {
+        String[][] props = new String[varargs.length / 2][2];
+        for (int i = 0; i < varargs.length; i += 2) {
+            props[i / 2][0] = varargs[i];
+            props[i / 2][1] = varargs[i + 1];
+        }
+        this.props = new GraphProperties(props);
+        updateProperties();
+    }
 
-    private Color color;
-    private int textSize = 15;
+    public void setProperty(String prop, String value) {
+        this.props.addProperty(prop, value);
+        updateProperties();
+    }
 
-    private double v0, v1;
-    private int intervals;
-    private int orientation;
-    private String label;
-
-    private Rectangle rect;
-    private Dimension displaySize;
-    private double graphWidth, graphHeight;
-    private int paddingX, paddingY, graphPaddingX, graphPaddingY;
-    private double x1, x2, y1, y2;
-
-    private Font font;
-    private boolean SN;
-    public HashMap<String, String> props;
-
-    public GraphAxis(float v0, float v1, int intervals, String label, int orientation, String[] props, Rectangle rect, Dimension displaySize) {
-        this.v0 = v0;
-        this.v1 = v1;
-        this.intervals = intervals;
-        this.label = label;
-        this.orientation = orientation;
-        this.rect = rect;
-        this.displaySize = displaySize;
-
-        font = new Font("Helvetica", Font.PLAIN, 15);
-
-        this.props = new HashMap();
-        for (int i = 0; i < props.length; i++) {
-            if (i + 1 < props.length) {
-                this.props.put(props[i], props[i+1]);
+    public void setProperties(String... varargs) {
+        for (int i = 0; i < varargs.length; i += 2) {
+            if (i + 1 < varargs.length) {
+                props.addProperty(varargs[i], varargs[i + 1]);
             }
         }
         updateProperties();
-
-        paddingX = displaySize.width / 10;
-        paddingY = displaySize.height / 10;
-        if (orientation == AXIS_X) {
-            graphWidth = v1 - v0;
-            x1 = v0;
-            x2 = v1;
-        }
-
-    }
-
-    public static GraphAxis xAxis(float v0, float v1, int intervals, String label, Rectangle rect, Dimension windowSize) {
-        return new GraphAxis(v0, v1, intervals, label, AXIS_X, new String[]{}, rect, windowSize);
-    }
-
-    public static GraphAxis yAxis(float v0, float v1, int intervals, String label, Rectangle rect, Dimension windowSize) {
-        return new GraphAxis(v0, v1, intervals, label, AXIS_Y, new String[]{}, rect, windowSize);
     }
 
     private void updateProperties() {
-        this.color = colors.getOrDefault(props.getOrDefault(COLOR, "k"), Color.BLACK);
-        this.textSize = Integer.parseInt(props.getOrDefault(TEXT_SIZE, "15"));
-        this.SN = Boolean.parseBoolean(props.getOrDefault(SCIENTIFIC_NOTATION, "false"));
+        label = props.getOrDefault("label", "");
+        numIntervals = Integer.parseInt(props.getOrDefault("num_intervals", "5"));
+        orientation = props.getOrDefault("orientation", "X");
+
+        String textFont = props.getOrDefault("font", "Helvetica");
+        int textStyle = Integer.parseInt(props.getOrDefault("text_style", "0"));
+        int labelSize = Integer.parseInt(props.getOrDefault("label_size", "20"));
+        int markSize = Integer.parseInt(props.getOrDefault("markSize", "16"));
+        labelFont = new Font(textFont, textStyle, labelSize);
+        markFont = new Font(textFont, textStyle, markSize);
+
+        labelColor = GraphProperties.getColor(props.getOrDefault("label_color", "k"));
+        markColor = GraphProperties.getColor(props.getOrDefault("mark_color", "k"));
+        lineColor = GraphProperties.getColor(props.getOrDefault("line_color", "k"));
+
+        numberFormat = props.getOrDefault("number_format", "%4.2e");
     }
 
-    public void paint(Graphics2D g) {
-        FontMetrics metrics = g.getFontMetrics(font);
-        g.setFont(font);
-
-        if (orientation == AXIS_X) {
-            graphWidth = v1 - v0;
-            g.drawLine(paddingX, displaySize.height - paddingY, displaySize.width - paddingX, displaySize.height - paddingY);
-            drawCenteredString(g, label, new Rectangle(0, displaySize.height - paddingY / 2, displaySize.width, paddingY / 2), font, 0);
+    public void paint(Graphics2D g, double v1, double v2, Dimension displaySize, int padX, int padY) {
+        g.setFont(labelFont);
+        g.setColor(labelColor);
+        FontMetrics metrics = g.getFontMetrics(markFont);
+        if (orientation.equals("x")) {
+            g.setColor(lineColor);
+            g.drawLine(padX, displaySize.height - padY, displaySize.width - padX, displaySize.height - padY);
+            Rectangle rect = new Rectangle(0, displaySize.height - padY / 2, displaySize.width, padY / 2);
+            g.setColor(labelColor);
+            drawCenteredString(g, label, rect, labelFont, 0);
 
             // draw intervals
-            int dx = (displaySize.width - 2 *paddingX) / (intervals - 1);
-            double intervalValue = (v1 - v0) / (intervals - 1);
-            int y1 = displaySize.height - paddingY;
-            int y2 = displaySize.height - 5 * paddingY / 6;
-            int yPos = y1 = metrics.getHeight() / 2 + metrics.getAscent();
-            for (int i = 0; i < intervals; i++) {
-                int x = paddingX + i * dx;
+            g.setFont(markFont);
+
+            int dx = (displaySize.width - 2 * padX) / (numIntervals - 1);
+            int y1 = displaySize.height - padY;
+            int y2 = displaySize.height - 5 * padY / 6;
+
+            double intervalValue = (v2 - v1) / (numIntervals - 1);
+            int yPos = y1 + metrics.getHeight() + metrics.getAscent();
+
+            for (int i = 0; i < numIntervals; i++) {
+                int x = padX + i * dx;
+                g.setColor(lineColor);
                 g.drawLine(x, y1, x, y2);
-                double value = i * intervalValue + v0;
-                String s = SN ? String.format("%4.2e", value) : String.valueOf(value);
-                g.drawString(s, x - paddingX / 6, yPos);
+                double value = i * intervalValue + v1;
+                g.setColor(markColor);
+                g.drawString(String.format(numberFormat, value), x - padX / 6, yPos);
             }
-        } else {
-            graphHeight = v1 - v0;
-            y1 = v0;
-            y2 = v1;
-            g.drawLine(paddingX, paddingY, paddingX, displaySize.height - paddingY);
-            drawCenteredString(g, label,
-                    new Rectangle(0, 0, paddingX / 2, displaySize.height), font, 90);
+        } else if (orientation.equals("y")) {
+            g.setColor(lineColor);
+            g.drawLine(padX, padY, padX, displaySize.height - padY);
+            Rectangle rect = new Rectangle(0, 0, padX / 2, displaySize.height);
+            g.setColor(labelColor);
+            drawCenteredString(g, label, rect, labelFont, 90);
 
             // draw intervals
-            int dy = (displaySize.height - 2 * paddingY) / (intervals - 1);
-            double intervalValue = (v0 - v1) / (intervals - 1);
-            int x1 = 5 * paddingX / 6;
-            int xPos = x1 - metrics.getHeight() + metrics.getAscent();
-            AffineTransform affineTransform = new AffineTransform();
-            affineTransform.rotate(Math.toRadians(-90), 0, 0);
-            Font rotatedFont = font.deriveFont(affineTransform);
+            AffineTransform transform = new AffineTransform();
+            transform.rotate(Math.toRadians(-90), 0, 0);
+            Font rotatedFont = markFont.deriveFont(transform);
             g.setFont(rotatedFont);
-            for (int i = 0; i < intervals; i++) {
-                int y = paddingY + i * dy;
-                double value = i * intervalValue + v1;
-                String s = SN ? String.format("%4.2e", value) : String.valueOf(value);
-                g.drawString(s, xPos, y + paddingY / 5);
+            g.setColor(markColor);
+
+            int dy = (displaySize.height - 2 * padY) / (numIntervals - 1);
+            int x1 = 5 * padX / 6;
+
+            double intervalValue = (v1 - v2) / (numIntervals - 1);
+            int xPos = x1 - metrics.getHeight() + metrics.getAscent();
+
+            for (int i = 0; i < numIntervals; i++) {
+                int y = padY + i * dy;
+                g.setColor(lineColor);
+                g.drawLine(x1, y, padX, y);
+                double value = i * intervalValue + v2;
+                g.setColor(markColor);
+                g.drawString(String.format(numberFormat, value), xPos, y + padY / 5);
             }
+
         }
     }
 
