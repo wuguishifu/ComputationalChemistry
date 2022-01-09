@@ -10,9 +10,12 @@ public class GraphRenderer {
     private final GraphTitle title;
 
     private double x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-    public boolean hasBounds = false;
+    public boolean hasXBounds = false, hasYBounds = false;
     private int padX = 0, padY = 0;
+    private int seriesPadX = 15, seriesPadY = 15;
     private Dimension displaySize;
+
+    private static final Color backgroundColor = new Color(238, 238, 238);
 
     public GraphRenderer(GraphDisplay gd, GraphAxis xAxis, GraphAxis yAxis, GraphTitle title) {
         this.displaySize = gd.getWindowSize();
@@ -35,10 +38,10 @@ public class GraphRenderer {
     }
 
     public void expandXBounds(double x1, double x2) {
-        if (!hasBounds) {
+        if (!hasXBounds) {
             this.x1 = x1;
             this.x2 = x2;
-            this.hasBounds = true;
+            this.hasXBounds = true;
         } else {
             if (x1 < this.x1) {
                 this.x1 = x1;
@@ -55,10 +58,10 @@ public class GraphRenderer {
     }
 
     public void expandYBounds(double y1, double y2) {
-        if (!hasBounds) {
+        if (!hasYBounds) {
             this.y1 = y1;
             this.y2 = y2;
-            this.hasBounds = true;
+            this.hasYBounds = true;
         } else {
             if (y1 < this.y1) {
                 this.y1 = y1;
@@ -79,10 +82,26 @@ public class GraphRenderer {
         this.padY = padY;
     }
 
+    public void setSeriesPadding(int seriesPadX, int seriesPadY) {
+        this.seriesPadX = seriesPadX;
+        this.seriesPadY = seriesPadY;
+    }
+
     public void paint(Graphics2D g) {
+        g.fillRect(0, 0, displaySize.width, displaySize.height);
+
+        g.setColor(Color.WHITE);
+        g.fillRect(padX, padY, displaySize.width - 2 * padX, displaySize.height - 2 * padY);
+
         for (GraphSeries series : series) {
-            series.paint(g, x1, y1, x2, y2, displaySize, padX, padY);
+            series.paint(g, x1, y1, x2, y2, displaySize, padX + seriesPadX, padY + seriesPadY);
         }
+
+        g.setColor(backgroundColor);
+        g.fillRect(0, 0, padX, displaySize.height);
+        g.fillRect(padX, 0, displaySize.width - padX, padY);
+        g.fillRect(displaySize.width - padX, padY, padX, displaySize.height - padY);
+        g.fillRect(padX, displaySize.height - padY, displaySize.width - 2 * padX, padY);
 
         xAxis.paint(g, x1, x2, displaySize, padX, padY);
         yAxis.paint(g, y1, y2, displaySize, padX, padY);

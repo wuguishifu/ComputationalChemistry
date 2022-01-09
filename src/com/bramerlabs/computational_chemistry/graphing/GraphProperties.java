@@ -18,6 +18,42 @@ public class GraphProperties {
         }
     }
 
+    public GraphProperties(String quickProps) {
+        properties = new HashMap<>();
+
+        String drawStyle = "";
+        if (quickProps.contains(".")) {
+            drawStyle += ".";
+        }
+        if (quickProps.contains("o")) {
+            drawStyle += "o";
+        }
+        if (quickProps.contains("-")) {
+            drawStyle += "-";
+        }
+
+        String color;
+        if (quickProps.contains("r")) {
+            color = "r";
+        } else if (quickProps.contains("y")) {
+            color = "y";
+        } else if (quickProps.contains("g")) {
+            color = "g";
+        } else if (quickProps.contains("b")) {
+            color = "b";
+        } else if (quickProps.contains("m")) {
+            color = "m";
+        } else if (quickProps.contains("c")) {
+            color = "c";
+        } else {
+            color = "k";
+        }
+
+        properties.put("color", color);
+        properties.put("draw_style", drawStyle);
+
+    }
+
     public void addProperties(String[][] props) {
         for (String[] prop : props) {
             if (prop.length == 2) {
@@ -57,7 +93,6 @@ public class GraphProperties {
         colors.put("cyan", Color.CYAN);
         colors.put("black", Color.BLACK);
         colors.put("r", Color.RED);
-        colors.put("o", Color.ORANGE);
         colors.put("y", Color.YELLOW);
         colors.put("g", Color.GREEN);
         colors.put("b", Color.BLUE);

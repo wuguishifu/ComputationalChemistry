@@ -11,11 +11,13 @@ public class Graph {
     public GraphDisplay graphDisplay;
     public GraphRenderer graphRenderer;
 
+    private static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
     public Graph() {
-        Dimension windowSize = new Dimension(1600, 1200);
+        Dimension windowSize = new Dimension(screenSize.width / 4, screenSize.width / 4);
         graphDisplay = new GraphDisplay(windowSize);
-        GraphAxis xAxis = new GraphAxis("orientation", "x");
-        GraphAxis yAxis = new GraphAxis("orientation", "y");
+        GraphAxis xAxis = new GraphAxis("orientation", "x", "number_format", "%.2g");
+        GraphAxis yAxis = new GraphAxis("orientation", "y", "number_format", "%.2g");
         GraphTitle title = new GraphTitle();
         graphRenderer = new GraphRenderer(graphDisplay, xAxis, yAxis, title);
         graphDisplay.setRenderer(graphRenderer);
@@ -82,18 +84,16 @@ public class Graph {
 
     public static void main(String[] args) {
         Graph graph = new Graph();
-        ArrayList<Vector2f> data1 = new ArrayList<>();
-        ArrayList<Vector2f> data2 = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            data1.add(new Vector2f(i, i / 2.f + 25));
-            data2.add(new Vector2f(i + 10, i));
-        }
-        graph.addSeries(new GraphSeries(data2, new String[][]{{"color", "blue"}, {"size", "5"}}));
-        graph.addSeries(new GraphSeries(data1, "color", "red", "size", "10", "solid", "false"));
-        graph.xLabel("test label x");
-        graph.yLabel("test label y");
-        graph.title("test title");
+        graph.xLabel("x");
+        graph.yLabel("y");
+        graph.title("sin(x) and tan(x)");
 
+        ArrayList<Vector2f> data = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            data.add(new Vector2f(i, i));
+        }
+
+        graph.addSeries(new GraphSeries(data, "-.b"));
         graph.repaint();
     }
 

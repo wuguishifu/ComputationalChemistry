@@ -40,7 +40,7 @@ public class GraphTitle {
 
         String textFont = props.getOrDefault("font", "Helvetica");
         int textStyle = Integer.parseInt(props.getOrDefault("text_style", "0"));
-        int textSize = Integer.parseInt(props.getOrDefault("text_size", "28"));
+        int textSize = Integer.parseInt(props.getOrDefault("text_size", "36"));
         font = new Font(textFont, textStyle, textSize);
 
         textColor = GraphProperties.getColor(props.getOrDefault("text_color", "k"));
