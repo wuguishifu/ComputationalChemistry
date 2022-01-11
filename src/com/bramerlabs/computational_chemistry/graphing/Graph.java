@@ -3,13 +3,15 @@ package com.bramerlabs.computational_chemistry.graphing;
 import com.bramerlabs.computational_chemistry.math.vector.Vector2f;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Graph {
+public class Graph implements Runnable {
 
     public GraphDisplay graphDisplay;
     public GraphRenderer graphRenderer;
+    public GraphListener listener;
 
     private static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -19,10 +21,15 @@ public class Graph {
         GraphAxis xAxis = new GraphAxis("orientation", "x", "number_format", "%.2g");
         GraphAxis yAxis = new GraphAxis("orientation", "y", "number_format", "%.2g");
         GraphTitle title = new GraphTitle();
+
         graphRenderer = new GraphRenderer(graphDisplay, xAxis, yAxis, title);
+        graphRenderer.setPadding(windowSize.width / 10, windowSize.height / 10);
         graphDisplay.setRenderer(graphRenderer);
 
-        graphRenderer.setPadding(windowSize.width / 10, windowSize.height / 10);
+        listener = new GraphListener();
+        graphDisplay.addGraphListener(listener);
+
+        this.start();
     }
 
     public void repaint() {
@@ -82,6 +89,21 @@ public class Graph {
         return graphRenderer.getTitle();
     }
 
+    public void start() {
+        Thread graph = new Thread(this, this.toString());
+        graph.start();
+    }
+
+    @Override
+    public void run() {
+        while (!listener.isKeyDown(KeyEvent.VK_ESCAPE) && !listener.isWindowClosed()) {
+            repaint();
+            listener.update();
+            graphDisplay.update();
+        }
+        graphDisplay.close();
+    }
+
     public static void main(String[] args) {
         Graph graph = new Graph();
         graph.xLabel("x");
@@ -93,8 +115,8 @@ public class Graph {
             data.add(new Vector2f(i, i));
         }
 
-        graph.addSeries(new GraphSeries(data, "-.b"));
+        GraphSeries gs = new GraphSeries(data, "-.ob");
+        graph.addSeries(gs);
         graph.repaint();
     }
-
 }

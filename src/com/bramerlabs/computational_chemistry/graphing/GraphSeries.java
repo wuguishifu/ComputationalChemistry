@@ -35,6 +35,7 @@ public class GraphSeries {
 
     public void setProperty(String prop, String value) {
         this.props.addProperty(prop, value);
+        updateProperties();
     }
 
     public void setProperties(String... varargs) {
@@ -60,7 +61,8 @@ public class GraphSeries {
         drawType = props.getOrDefault("draw_style", "o");
     }
 
-    public void paint(Graphics2D g, double x1, double y1, double x2, double y2, Dimension displaySize, int padX, int padY) {
+    public void paint(Graphics2D g, double x1, double y1, double x2, double y2, Dimension displaySize, int padX,
+                      int padY, int ox, int oy, double zoom) {
         if (drawType.contains("o")) {
             for (Vector2f v : data) {
                 double px = v.x - x1;
@@ -71,10 +73,20 @@ public class GraphSeries {
                 int y = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
                 g.setStroke(new BasicStroke(strokeSize));
                 g.setColor(color);
+
+                int cx = displaySize.width / 2;
+                int cy = displaySize.height / 2;
+                int paintX = x - size / 2;
+                int paintY = y - size / 2;
+                paintX = (int) ((paintX - cx + padX + size/2) * zoom);
+                paintY = (int) ((paintY - cy + padY + size/2) * zoom);
+                paintX += ox + cx;
+                paintY += oy + cy;
+
                 if (solid) {
-                    g.fillOval(x + padX - size, y + padY - size, 2 * size, 2 * size);
+                    g.fillOval(paintX - size, paintY - size, 2 * size, 2 * size);
                 } else {
-                    g.drawOval(x + padX - size, y + padY - size, 2 * size, 2 * size);
+                    g.drawOval(paintX - size, paintY - size, 2 * size, 2 * size);
                 }
             }
         }
@@ -89,7 +101,16 @@ public class GraphSeries {
                 int y = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
                 g.setStroke(new BasicStroke(strokeSize));
                 g.setColor(color);
-                g.fillOval(x + padX - size / 2, y + padY - size / 2, size, size);
+
+                int cx = displaySize.width / 2;
+                int cy = displaySize.height / 2;
+                int paintX = x - size / 2;
+                int paintY = y - size / 2;
+                paintX = (int) ((paintX - cx + padX + size/2) * zoom);
+                paintY = (int) ((paintY - cy + padY + size/2) * zoom);
+                paintX += ox + cx;
+                paintY += oy + cy;
+                g.fillOval(paintX - size/2, paintY - size/2, size, size);
             }
         }
 
@@ -109,12 +130,12 @@ public class GraphSeries {
                 int px2 = (int) (dX * (displaySize.width - 2 * padX));
                 int py2 = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
 
-                if (data.get(i).y * data.get(i+1).y < 0) {
+                if (data.get(i).y * data.get(i + 1).y < 0) {
                     continue;
                 }
                 g.setStroke(new BasicStroke(strokeSize));
                 g.setColor(color);
-                g.drawLine(px1 + padX, py1 + padY, px2 + padX, py2 + padY);
+                g.drawLine(px1 + padX + ox, py1 + padY + oy, px2 + padX + ox, py2 + padY + oy);
             }
         }
     }

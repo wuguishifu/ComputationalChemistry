@@ -12,7 +12,7 @@ public class GraphRenderer {
     private double x1 = 0, x2 = 0, y1 = 0, y2 = 0;
     public boolean hasXBounds = false, hasYBounds = false;
     private int padX = 0, padY = 0;
-    private int seriesPadX = 15, seriesPadY = 15;
+    private int seriesPadX = 0, seriesPadY = 0;
     private Dimension displaySize;
 
     private static final Color backgroundColor = new Color(238, 238, 238);
@@ -87,14 +87,15 @@ public class GraphRenderer {
         this.seriesPadY = seriesPadY;
     }
 
-    public void paint(Graphics2D g) {
+    public void paint(Graphics2D g, int offsetX, int offsetY, double zoom) {
         g.fillRect(0, 0, displaySize.width, displaySize.height);
 
         g.setColor(Color.WHITE);
         g.fillRect(padX, padY, displaySize.width - 2 * padX, displaySize.height - 2 * padY);
 
         for (GraphSeries series : series) {
-            series.paint(g, x1, y1, x2, y2, displaySize, padX + seriesPadX, padY + seriesPadY);
+            series.paint(g, x1, y1, x2, y2, displaySize, padX + seriesPadX,
+                    padY + seriesPadY, offsetX, offsetY, zoom);
         }
 
         g.setColor(backgroundColor);
@@ -103,8 +104,8 @@ public class GraphRenderer {
         g.fillRect(displaySize.width - padX, padY, padX, displaySize.height - padY);
         g.fillRect(padX, displaySize.height - padY, displaySize.width - 2 * padX, padY);
 
-        xAxis.paint(g, x1, x2, displaySize, padX, padY);
-        yAxis.paint(g, y1, y2, displaySize, padX, padY);
+        xAxis.paint(g, x1, x2, displaySize, padX, padY, offsetX, offsetY);
+        yAxis.paint(g, y1, y2, displaySize, padX, padY, offsetX, offsetY);
 
         title.paint(g, displaySize, padY);
     }

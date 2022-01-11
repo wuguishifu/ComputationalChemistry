@@ -78,7 +78,7 @@ public class GraphAxis {
         }
     }
 
-    public void paint(Graphics2D g, double v1, double v2, Dimension displaySize, int padX, int padY) {
+    public void paint(Graphics2D g, double v1, double v2, Dimension displaySize, int padX, int padY, int ox, int oy) {
         g.setFont(labelFont);
         g.setColor(labelColor);
         FontMetrics markMetrics = g.getFontMetrics(markFont);
@@ -103,7 +103,7 @@ public class GraphAxis {
                 int x = padX + i * dx;
                 g.setColor(lineColor);
                 g.drawLine(x, y1, x, y2);
-                double value = i * intervalValue + v1;
+                double value = (i * intervalValue + v1) - (ox * (intervalValue / dx));
                 g.setColor(markColor);
                 Rectangle markRect = new Rectangle(x - padX / 6, y2, padX / 3, markMetrics.getHeight());
                 drawCenteredString(g, String.format(numberFormat, value), markRect, markFont, 0);
@@ -132,7 +132,7 @@ public class GraphAxis {
                 int y = padY + i * dy;
                 g.setColor(lineColor);
                 g.drawLine(x1, y, padX, y);
-                double value = i * intervalValue + v2;
+                double value = (i * intervalValue + v2) - (oy * (intervalValue / dy));
                 g.setColor(markColor);
                 int width = markMetrics.getHeight();
                 Rectangle markRect = new Rectangle(x1 - width, y - padY / 6, width, padY / 3);
