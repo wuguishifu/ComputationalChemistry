@@ -24,6 +24,10 @@ public class GraphListener implements KeyListener, MouseListener, MouseMotionLis
         System.arraycopy(mouseButtonsDown, 0, mouseButtonsDownLast, 0, mouseButtonsDown.length);
     }
 
+    public void clearScrollMult() {
+        this.scrollMult = 1;
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -31,12 +35,16 @@ public class GraphListener implements KeyListener, MouseListener, MouseMotionLis
 
     @Override
     public void keyPressed(KeyEvent e) {
-        keysDown[e.getKeyCode()] = true;
+        if (e.getKeyCode() < KeyEvent.KEY_LAST) {
+            keysDown[e.getKeyCode()] = true;
+        }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        keysDown[e.getKeyCode()] = false;
+        if (e.getKeyCode() < KeyEvent.KEY_LAST) {
+            keysDown[e.getKeyCode()] = false;
+        }
     }
 
     @Override
@@ -45,12 +53,16 @@ public class GraphListener implements KeyListener, MouseListener, MouseMotionLis
 
     @Override
     public void mousePressed(MouseEvent e) {
-        mouseButtonsDown[e.getButton()] = true;
+        if (e.getButton() < MouseEvent.MOUSE_LAST) {
+            mouseButtonsDown[e.getButton()] = true;
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        mouseButtonsDown[e.getButton()] = false;
+        if (e.getButton() < MouseEvent.MOUSE_LAST) {
+            mouseButtonsDown[e.getButton()] = false;
+        }
     }
 
     @Override

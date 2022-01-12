@@ -15,7 +15,7 @@ public class GraphRenderer {
     private int seriesPadX = 0, seriesPadY = 0;
     private Dimension displaySize;
 
-    private static final Color backgroundColor = new Color(238, 238, 238);
+    public static final Color backgroundColor = new Color(238, 238, 238);
 
     public GraphRenderer(GraphDisplay gd, GraphAxis xAxis, GraphAxis yAxis, GraphTitle title) {
         this.displaySize = gd.getWindowSize();
@@ -93,11 +93,15 @@ public class GraphRenderer {
         g.setColor(Color.WHITE);
         g.fillRect(padX, padY, displaySize.width - 2 * padX, displaySize.height - 2 * padY);
 
+        // render only the plot with antialiasing
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for (GraphSeries series : series) {
             series.paint(g, x1, y1, x2, y2, displaySize, padX + seriesPadX,
                     padY + seriesPadY, offsetX, offsetY, zoom);
         }
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
+        // obfuscation blocks
         g.setColor(backgroundColor);
         g.fillRect(0, 0, padX, displaySize.height);
         g.fillRect(padX, 0, displaySize.width - padX, padY);

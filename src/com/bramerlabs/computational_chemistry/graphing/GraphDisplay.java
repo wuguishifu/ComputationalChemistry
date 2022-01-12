@@ -2,6 +2,7 @@ package com.bramerlabs.computational_chemistry.graphing;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
@@ -25,8 +26,9 @@ public class GraphDisplay {
             public void paint(Graphics g) {
                 super.paint(g);
                 Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                renderer.paint(g2d, offsetX, offsetY, zoom);
+                if (renderer != null) {
+                    renderer.paint(g2d, offsetX, offsetY, zoom);
+                }
             }
         };
         panel.setPreferredSize(windowSize);
@@ -83,6 +85,7 @@ public class GraphDisplay {
             px = listener.getMouseX();
             py = listener.getMouseY();
         }
+
         if (listener.isMouseButtonDown(MouseEvent.BUTTON1)) {
             cx = listener.getMouseX();
             cy = listener.getMouseY();
@@ -92,6 +95,12 @@ public class GraphDisplay {
             py = cy;
             offsetX += dx;
             offsetY += dy;
+        }
+
+        if (listener.isKeyDown(KeyEvent.VK_H)) {
+            offsetX = 0;
+            offsetY = 0;
+            listener.clearScrollMult();
         }
 
         zoom = listener.getScrollMult();

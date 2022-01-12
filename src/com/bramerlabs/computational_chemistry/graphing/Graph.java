@@ -18,8 +18,8 @@ public class Graph implements Runnable {
     public Graph() {
         Dimension windowSize = new Dimension(screenSize.width / 4, screenSize.width / 4);
         graphDisplay = new GraphDisplay(windowSize);
-        GraphAxis xAxis = new GraphAxis("orientation", "x", "number_format", "%.2g");
-        GraphAxis yAxis = new GraphAxis("orientation", "y", "number_format", "%.2g");
+        GraphAxis xAxis = new GraphAxis("orientation", "x", "number_format", "%.3g");
+        GraphAxis yAxis = new GraphAxis("orientation", "y", "number_format", "%.3g");
         GraphTitle title = new GraphTitle();
 
         graphRenderer = new GraphRenderer(graphDisplay, xAxis, yAxis, title);
@@ -108,14 +108,14 @@ public class Graph implements Runnable {
         Graph graph = new Graph();
         graph.xLabel("x");
         graph.yLabel("y");
-        graph.title("sin(x) and tan(x)");
+        graph.title("sin(x)");
 
         ArrayList<Vector2f> data = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i <= 10; i++) {
             data.add(new Vector2f(i, i));
         }
 
-        GraphSeries gs = new GraphSeries(data, "-.ob");
+        GraphSeries gs = new GraphSeries(data, "-.b");
         graph.addSeries(gs);
         graph.repaint();
     }

@@ -61,14 +61,17 @@ public class GraphSeries {
         drawType = props.getOrDefault("draw_style", "o");
     }
 
-    public void paint(Graphics2D g, double x1, double y1, double x2, double y2, Dimension displaySize, int padX,
+    int cXLast, cYLast;
+
+    public void paint(Graphics2D g, double xL, double yL, double xH, double yH, Dimension displaySize, int padX,
                       int padY, int ox, int oy, double zoom) {
-        if (drawType.contains("o")) {
-            for (Vector2f v : data) {
-                double px = v.x - x1;
-                double py = v.y - y1;
-                double dX = px / (x2 - x1);
-                double dY = py / (y2 - y1);
+        if (drawType.contains(".") || drawType.contains("o")) {
+            for (int i = 0; i < data.size(); i++) {
+                Vector2f v = data.get(i);
+                double px = v.x - xL;
+                double py = v.y - yL;
+                double dX = px / (xH - xL);
+                double dY = py / (yH - yL);
                 int x = (int) (dX * (displaySize.width - 2 * padX));
                 int y = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
                 g.setStroke(new BasicStroke(strokeSize));
@@ -78,64 +81,28 @@ public class GraphSeries {
                 int cy = displaySize.height / 2;
                 int paintX = x - size / 2;
                 int paintY = y - size / 2;
-                paintX = (int) ((paintX - cx + padX + size/2) * zoom);
-                paintY = (int) ((paintY - cy + padY + size/2) * zoom);
-                paintX += ox + cx;
-                paintY += oy + cy;
+                paintX = (int) ((paintX - cx + padX + size / 2 + ox) * zoom);
+                paintY = (int) ((paintY - cy + padY + size / 2 + oy) * zoom);
+                paintX += cx;
+                paintY += cy;
 
-                if (solid) {
-                    g.fillOval(paintX - size, paintY - size, 2 * size, 2 * size);
-                } else {
-                    g.drawOval(paintX - size, paintY - size, 2 * size, 2 * size);
+                if (drawType.contains(".")) {
+                    g.fillOval(paintX - size / 2, paintY - size / 2, size, size);
                 }
-            }
-        }
 
-        if (drawType.contains(".")) {
-            for (Vector2f v : data) {
-                double px = v.x - x1;
-                double py = v.y - y1;
-                double dX = px / (x2 - x1);
-                double dY = py / (y2 - y1);
-                int x = (int) (dX * (displaySize.width - 2 * padX));
-                int y = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
-                g.setStroke(new BasicStroke(strokeSize));
-                g.setColor(color);
-
-                int cx = displaySize.width / 2;
-                int cy = displaySize.height / 2;
-                int paintX = x - size / 2;
-                int paintY = y - size / 2;
-                paintX = (int) ((paintX - cx + padX + size/2) * zoom);
-                paintY = (int) ((paintY - cy + padY + size/2) * zoom);
-                paintX += ox + cx;
-                paintY += oy + cy;
-                g.fillOval(paintX - size/2, paintY - size/2, size, size);
-            }
-        }
-
-        if (drawType.contains("-")) {
-            for (int i = 0; i < data.size() - 1; i++) {
-                double px = data.get(i).x - x1;
-                double py = data.get(i).y - y1;
-                double dX = px / (x2 - x1);
-                double dY = py / (y2 - y1);
-                int px1 = (int) (dX * (displaySize.width - 2 * padX));
-                int py1 = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
-
-                px = data.get(i + 1).x - x1;
-                py = data.get(i + 1).y - y1;
-                dX = px / (x2 - x1);
-                dY = py / (y2 - y1);
-                int px2 = (int) (dX * (displaySize.width - 2 * padX));
-                int py2 = (int) -(dY * (displaySize.height - 2 * padY)) + displaySize.height - 2 * padY;
-
-                if (data.get(i).y * data.get(i + 1).y < 0) {
-                    continue;
+                if (drawType.contains("o")) {
+                    if (solid) {
+                        g.fillOval(paintX - size, paintY - size, 2 * size, 2 * size);
+                    } else {
+                        g.drawOval(paintX - size, paintY - size, 2 * size, 2 * size);
+                    }
                 }
-                g.setStroke(new BasicStroke(strokeSize));
-                g.setColor(color);
-                g.drawLine(px1 + padX + ox, py1 + padY + oy, px2 + padX + ox, py2 + padY + oy);
+
+                if (drawType.contains("-") || i > 0) {
+                    g.drawLine(cXLast, cYLast, paintX, paintY);
+                    cXLast = paintX;
+                    cYLast = paintY;
+                }
             }
         }
     }
