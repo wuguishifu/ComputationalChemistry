@@ -19,6 +19,12 @@ public class GraphListener implements KeyListener, MouseListener, MouseMotionLis
 
     private boolean windowClosed = false;
 
+    private GraphRenderer renderer;
+
+    public GraphListener(GraphRenderer renderer) {
+        this.renderer = renderer;
+    }
+
     public void update() {
         System.arraycopy(keysDown, 0, keysDownLast, 0, keysDown.length);
         System.arraycopy(mouseButtonsDown, 0, mouseButtonsDownLast, 0, mouseButtonsDown.length);
@@ -168,19 +174,30 @@ public class GraphListener implements KeyListener, MouseListener, MouseMotionLis
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        boolean previousDirection = direction;
         preciseWheelRotation = e.getPreciseWheelRotation();
         scrollAmount = e.getScrollAmount();
-        totalScroll += scrollAmount * preciseWheelRotation;
+
+        // see if the scroll direction changed
+        direction = !(preciseWheelRotation < 0);
+        if (direction != previousDirection) {
+            scrollMult = 1;
+        }
+
         if (preciseWheelRotation < 0) {
-            scrollMult = scrollMult + (scrollAmount / 30.);
+            scrollMult = scrollMult + (scrollAmount / 300.);
         }
         else {
-            double n = scrollMult - (scrollAmount / 30.);
+            double n = scrollMult - (scrollAmount / 300.);
             if (n > 0) {
                 scrollMult = n;
             }
         }
+
+        // update the zoom
+        renderer.zoom(1 + scrollAmount / 30. * preciseWheelRotation);
     }
+    private boolean direction;
 
     public int getScrollAmount() {
         return scrollAmount;
@@ -188,10 +205,6 @@ public class GraphListener implements KeyListener, MouseListener, MouseMotionLis
 
     public double getPreciseWheelRotation() {
         return preciseWheelRotation;
-    }
-
-    public double getTotalScroll() {
-        return this.totalScroll;
     }
 
     public double getScrollMult() {

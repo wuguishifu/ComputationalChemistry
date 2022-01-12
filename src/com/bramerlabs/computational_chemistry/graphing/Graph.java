@@ -26,7 +26,7 @@ public class Graph implements Runnable {
         graphRenderer.setPadding(windowSize.width / 10, windowSize.height / 10);
         graphDisplay.setRenderer(graphRenderer);
 
-        listener = new GraphListener();
+        listener = new GraphListener(graphRenderer);
         graphDisplay.addGraphListener(listener);
 
         this.start();
@@ -94,12 +94,20 @@ public class Graph implements Runnable {
         graph.start();
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public void run() {
         while (!listener.isKeyDown(KeyEvent.VK_ESCAPE) && !listener.isWindowClosed()) {
             repaint();
             listener.update();
             graphDisplay.update();
+
+            try {
+                Thread.sleep(15); // this number is arbitrary LOL it should be (1000ms/s)/(60fps) but whatever
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         }
         graphDisplay.close();
     }
@@ -115,7 +123,7 @@ public class Graph implements Runnable {
             data.add(new Vector2f(i, i));
         }
 
-        GraphSeries gs = new GraphSeries(data, "-.b");
+        GraphSeries gs = new GraphSeries(data, "-.ob");
         graph.addSeries(gs);
         graph.repaint();
     }

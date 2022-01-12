@@ -78,72 +78,8 @@ public class GraphAxis {
         }
     }
 
-    public void paint_old(Graphics2D g, double v1, double v2, Dimension displaySize, int padX, int padY, int ox, int oy) {
-        g.setFont(labelFont);
-        g.setColor(labelColor);
-        FontMetrics markMetrics = g.getFontMetrics(markFont);
-        if (orientation.equals("x")) {
-            g.setColor(lineColor);
-            g.drawLine(padX, displaySize.height - padY, displaySize.width - padX, displaySize.height - padY);
-            g.drawLine(padX, padY, displaySize.width - padX, padY);
-            Rectangle labelRect = new Rectangle(0, displaySize.height - padY / 2, displaySize.width, padY / 2);
-            g.setColor(labelColor);
-            drawCenteredString(g, label, labelRect, labelFont, 0);
-
-            // draw intervals
-            g.setFont(markFont);
-
-            int dx = (displaySize.width - 2 * padX) / (numIntervals - 1);
-            int y1 = displaySize.height - padY;
-            int y2 = displaySize.height - 5 * padY / 6;
-
-            double intervalValue = (v2 - v1) / (numIntervals - 1);
-
-            for (int i = 0; i < numIntervals; i++) {
-                int x = padX + i * dx;
-                g.setColor(lineColor);
-                g.drawLine(x, y1, x, y2);
-                double value = (i * intervalValue + v1) - (ox * (intervalValue / dx));
-                g.setColor(markColor);
-                Rectangle markRect = new Rectangle(x - padX / 6, y2, padX / 3, markMetrics.getHeight());
-                drawCenteredString(g, String.format(numberFormat, value), markRect, markFont, 0);
-            }
-        } else if (orientation.equals("y")) {
-            g.setColor(lineColor);
-            g.drawLine(padX, padY, padX, displaySize.height - padY);
-            g.drawLine(displaySize.width - padX, padY, displaySize.width - padX, displaySize.height - padY);
-            Rectangle labelRect = new Rectangle(0, 0, padX / 2, displaySize.height);
-            g.setColor(labelColor);
-            drawCenteredString(g, label, labelRect, labelFont, 90);
-
-            // draw intervals
-            AffineTransform transform = new AffineTransform();
-            transform.rotate(Math.toRadians(-90), 0, 0);
-            Font rotatedFont = markFont.deriveFont(transform);
-            g.setFont(rotatedFont);
-            g.setColor(markColor);
-
-            int dy = (displaySize.height - 2 * padY) / (numIntervals - 1);
-            int x1 = 5 * padX / 6;
-
-            double intervalValue = (v1 - v2) / (numIntervals - 1);
-
-            for (int i = 0; i < numIntervals; i++) {
-                int y = padY + i * dy;
-                g.setColor(lineColor);
-                g.drawLine(x1, y, padX, y);
-                double value = (i * intervalValue + v2) - (oy * (intervalValue / dy));
-                g.setColor(markColor);
-                int width = markMetrics.getHeight();
-                Rectangle markRect = new Rectangle(x1 - width, y - padY / 6, width, padY / 3);
-                drawCenteredString(g, String.format(numberFormat, value), markRect, markFont, 90);
-            }
-
-        }
-    }
-
     public void paint(Graphics2D g, double v1, double v2, Dimension displaySize,
-                      int padX, int padY, int ox, int oy, double zoom) {
+                      int padX, int padY, int ox, int oy) {
         g.setFont(labelFont);
         g.setColor(labelColor);
         FontMetrics markMetrics = g.getFontMetrics(markFont);
@@ -170,10 +106,8 @@ public class GraphAxis {
 
             int globalXMin = padX + ox;
             int n = (globalXMin - padX) / dx;
-            int iMin = -n - 3;
-            int iMax = numIntervals - n + 3;
-
-            double dvdp = (v2 - v1) / (displaySize.width - 2 * padX);
+            int iMin = -n;
+            int iMax = numIntervals - n;
 
             for (int i = iMin; i < iMax; i++) {
                 int x = padX + i * dx + ox;
@@ -182,10 +116,11 @@ public class GraphAxis {
                 }
                 g.setColor(lineColor);
 
-//                x = (int) ((x - cx) * zoom + cx);
-//                double value = dvdp * (x-padX-ox) / zoom;
-                double value = dvdp * (x - padX - ox);
+                double value = intervalValue * i + v1;
 
+                if (Math.abs(value) < 0.0000000000f) {
+                    value = 0;
+                }
                 g.drawLine(x, y1, x, y2);
 
                 g.setColor(markColor);
@@ -223,8 +158,13 @@ public class GraphAxis {
                     continue;
                 }
                 g.setColor(lineColor);
-                g.drawLine(x1, y, padX, y);
+
                 double value = (i * intervalValue + v2);
+                if (Math.abs(value) < 0.0000000000f) {
+                    value = 0;
+                }
+
+                g.drawLine(x1, y, padX, y);
                 g.setColor(markColor);
                 int width = markMetrics.getHeight();
                 Rectangle markRect = new Rectangle(x1 - width, y - padY / 3, width, padY / 3);

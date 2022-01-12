@@ -12,12 +12,12 @@ public class GraphDisplay {
     private final JFrame frame;
 
     private GraphRenderer renderer;
-    private Dimension windowSize;
+    private Dimension displaySize;
 
     private GraphListener listener;
 
     public GraphDisplay(Dimension windowSize) {
-        this.windowSize = windowSize;
+        this.displaySize = windowSize;
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -27,7 +27,7 @@ public class GraphDisplay {
                 super.paint(g);
                 Graphics2D g2d = (Graphics2D) g.create();
                 if (renderer != null) {
-                    renderer.paint(g2d, offsetX, offsetY, zoom);
+                    renderer.paint(g2d, offsetX, offsetY);
                 }
             }
         };
@@ -46,12 +46,12 @@ public class GraphDisplay {
         this.renderer = gr;
     }
 
-    public void setWindowSize(Dimension windowSize) {
-        this.windowSize = windowSize;
+    public void setDisplaySize(Dimension displaySize) {
+        this.displaySize = displaySize;
     }
 
-    public Dimension getWindowSize() {
-        return this.windowSize;
+    public Dimension getDisplaySize() {
+        return this.displaySize;
     }
 
     public ArrayList<GraphSeries> getSeries() {
@@ -75,38 +75,54 @@ public class GraphDisplay {
     private int px, py;
     private int cx, cy;
     private int dx, dy;
+    private int cmx = -1, cmy = -1;
+    private int pmx, pmy;
+    boolean cmd, pmd;
     private int offsetX, offsetY;
 
-    private double zoom = 1;
-
-
     public void update() {
-        if (!listener.isMouseButtonDown(MouseEvent.BUTTON1)) {
+        pmd = cmd;
+        cmd = listener.isMouseButtonDown(MouseEvent.BUTTON1);
+
+        if (!moving) {
             px = listener.getMouseX();
             py = listener.getMouseY();
         }
 
-        if (listener.isMouseButtonDown(MouseEvent.BUTTON1)) {
-            cx = listener.getMouseX();
-            cy = listener.getMouseY();
-            dx = cx - px;
-            dy = cy - py;
-            px = cx;
-            py = cy;
-//            dx *= zoom;
-//            dy *= zoom;
-            offsetX += dx * zoom;
-            offsetY += dy * zoom;
+        if (cmd && !pmd) {
+            int cx = listener.getMouseX();
+            int cy = listener.getMouseY();
+            // bounds check
+            if (cx <= displaySize.width - renderer.getPadX() && cx >= renderer.getPadX() &&
+                    cy <= displaySize.height - renderer.getPadY() && cy >= renderer.getPadY()) {
+                moving = true;
+            }
         }
+
+        if (!cmd && pmd) {
+            moving = false;
+        }
+
+        if (moving) {
+            if (listener.isMouseButtonDown(MouseEvent.BUTTON1)) {
+                cx = listener.getMouseX();
+                cy = listener.getMouseY();
+                dx = cx - px;
+                dy = cy - py;
+                px = cx;
+                py = cy;
+                offsetX += dx;
+                offsetY += dy;
+            }
+        }
+
 
         if (listener.isKeyDown(KeyEvent.VK_H)) {
             offsetX = 0;
             offsetY = 0;
             listener.clearScrollMult();
+            renderer.reset();
         }
-
-//        zoom = listener.getScrollMult();
-
     }
 
 }
