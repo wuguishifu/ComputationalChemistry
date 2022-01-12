@@ -93,8 +93,10 @@ public class GraphDisplay {
             dy = cy - py;
             px = cx;
             py = cy;
-            offsetX += dx;
-            offsetY += dy;
+//            dx *= zoom;
+//            dy *= zoom;
+            offsetX += dx * zoom;
+            offsetY += dy * zoom;
         }
 
         if (listener.isKeyDown(KeyEvent.VK_H)) {
@@ -103,7 +105,7 @@ public class GraphDisplay {
             listener.clearScrollMult();
         }
 
-        zoom = listener.getScrollMult();
+//        zoom = listener.getScrollMult();
 
     }
 

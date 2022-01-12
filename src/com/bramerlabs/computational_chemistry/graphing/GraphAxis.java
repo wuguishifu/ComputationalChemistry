@@ -142,10 +142,15 @@ public class GraphAxis {
         }
     }
 
-    public void paint(Graphics2D g, double v1, double v2, Dimension displaySize, int padX, int padY, int ox, int oy) {
+    public void paint(Graphics2D g, double v1, double v2, Dimension displaySize,
+                      int padX, int padY, int ox, int oy, double zoom) {
         g.setFont(labelFont);
         g.setColor(labelColor);
         FontMetrics markMetrics = g.getFontMetrics(markFont);
+
+        int cx = displaySize.width / 2;
+        int cy = displaySize.height / 2;
+
         if (orientation.equals("x")) {
             g.setColor(lineColor);
             g.drawLine(padX, displaySize.height - padY, displaySize.width - padX, displaySize.height - padY);
@@ -165,8 +170,10 @@ public class GraphAxis {
 
             int globalXMin = padX + ox;
             int n = (globalXMin - padX) / dx;
-            int iMin = -n;
-            int iMax = numIntervals - n;
+            int iMin = -n - 3;
+            int iMax = numIntervals - n + 3;
+
+            double dvdp = (v2 - v1) / (displaySize.width - 2 * padX);
 
             for (int i = iMin; i < iMax; i++) {
                 int x = padX + i * dx + ox;
@@ -174,8 +181,13 @@ public class GraphAxis {
                     continue;
                 }
                 g.setColor(lineColor);
+
+//                x = (int) ((x - cx) * zoom + cx);
+//                double value = dvdp * (x-padX-ox) / zoom;
+                double value = dvdp * (x - padX - ox);
+
                 g.drawLine(x, y1, x, y2);
-                double value = (i * intervalValue + v1);
+
                 g.setColor(markColor);
                 Rectangle markRect = new Rectangle(x - padX / 6, y2, padX / 3, markMetrics.getHeight());
                 drawCenteredString(g, String.format(numberFormat, value), markRect, markFont, 0);

@@ -81,10 +81,8 @@ public class GraphSeries {
                 int cy = displaySize.height / 2;
                 int paintX = x - size / 2;
                 int paintY = y - size / 2;
-                paintX = (int) ((paintX - cx + padX + size / 2 + ox) * zoom);
-                paintY = (int) ((paintY - cy + padY + size / 2 + oy) * zoom);
-                paintX += cx;
-                paintY += cy;
+                paintX = (int) ((paintX - cx + padX + size / 2 + ox) * zoom) + cx;
+                paintY = (int) ((paintY - cy + padY + size / 2 + oy) * zoom) + cy;
 
                 if (drawType.contains(".")) {
                     g.fillOval(paintX - size / 2, paintY - size / 2, size, size);

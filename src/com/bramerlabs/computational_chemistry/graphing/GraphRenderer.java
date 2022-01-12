@@ -108,8 +108,8 @@ public class GraphRenderer {
         g.fillRect(displaySize.width - padX, padY, padX, displaySize.height - padY);
         g.fillRect(padX, displaySize.height - padY, displaySize.width - 2 * padX, padY);
 
-        xAxis.paint(g, x1, x2, displaySize, padX, padY, offsetX, offsetY);
-        yAxis.paint(g, y1, y2, displaySize, padX, padY, offsetX, offsetY);
+        xAxis.paint(g, x1, x2, displaySize, padX, padY, offsetX, offsetY, zoom);
+        yAxis.paint(g, y1, y2, displaySize, padX, padY, offsetX, offsetY, zoom);
 
         title.paint(g, displaySize, padY);
     }
