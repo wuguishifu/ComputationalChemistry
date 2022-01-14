@@ -118,16 +118,22 @@ public class GraphRenderer {
     public void zoom(double zoom) {
         double dxdp = (x2 - x1) / (displaySize.width - 2 * padX);
         double dydp = (y2 - y1) / (displaySize.height - 2 * padY);
-        x1 = x1 - offsetX * dxdp;
-        x2 = x2 - offsetX * dxdp;
-        y1 = y1 - offsetY * dydp;
-        y2 = y2 - offsetY * dydp;
+        double dx = offsetX * dxdp;
+        double dy = offsetY * dydp;
+        x1 += dx;
+        x2 += dx;
+        y1 += dy;
+        y2 += dy;
         double xm = (x1 + x2) / 2;
         double ym = (y1 + y2) / 2;
-        x1 = xm - (xm - x1) / zoom;
-        x2 = xm - (xm - x2) / zoom;
-        y1 = ym - (ym - y1) / zoom;
-        y2 = ym - (ym - y2) / zoom;
+        x1 = xm - (xm - x1) * zoom;
+        x2 = xm - (xm - x2) * zoom;
+        y1 = ym - (ym - y1) * zoom;
+        y2 = ym - (ym - y2) * zoom;
+        x1 -= dx;
+        x2 -= dx;
+        y1 -= dy;
+        y2 -= dy;
     }
 
     public void reset() {

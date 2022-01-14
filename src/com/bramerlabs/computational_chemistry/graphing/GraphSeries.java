@@ -77,15 +77,6 @@ public class GraphSeries {
                 g.setStroke(new BasicStroke(strokeSize));
                 g.setColor(color);
 
-                /* for zoom functionality
-                int paintX = x - size / 2;
-                int paintY = y - size / 2;
-                int cx = displaySize.width / 2;
-                int cy = displaySize.height / 2;
-                paintX = (int) ((paintX - cx + padX + size / 2 + ox) * zoom) + cx;
-                paintY = (int) ((paintY - cy + padY + size / 2 + oy) * zoom) + cy;
-                */
-
                 int paintX = x + padX + ox;
                 int paintY = y + padY + oy;
 
