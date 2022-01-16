@@ -8,9 +8,11 @@ public class GraphRenderer {
     private final ArrayList<GraphSeries> series;
     private final GraphAxis xAxis, yAxis;
     private final GraphTitle title;
+    private final GraphDisplay gd;
 
     private double x1 = 0, x2 = 0, y1 = 0, y2 = 0;
     private double x1F = 0, x2F = 0, y1F = 0, y2F = 0;
+    private double dxm = 0, dym = 0;
     public boolean hasXBounds = false, hasYBounds = false;
     private int padX = 0, padY = 0;
     private int seriesPadX = 0, seriesPadY = 0;
@@ -24,6 +26,7 @@ public class GraphRenderer {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.title = title;
+        this.gd = gd;
     }
 
     public void setDisplaySize(Dimension displaySize) {
@@ -53,6 +56,7 @@ public class GraphRenderer {
         }
         this.x1F = x1;
         this.x2F = x2;
+        this.dxm = x2F - x1F;
     }
 
     public void setXBounds(double x1, double x2) {
@@ -77,6 +81,7 @@ public class GraphRenderer {
         }
         this.y1F = y1;
         this.y2F = y2;
+        this.dym = y2F - y1F;
     }
 
     public void setYBounds(double y1, double y2) {
@@ -99,41 +104,44 @@ public class GraphRenderer {
         return this.padY;
     }
 
+    public void setOffset(int offsetX, int offsetY) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+    }
+
     public void setSeriesPadding(int seriesPadX, int seriesPadY) {
         this.seriesPadX = seriesPadX;
         this.seriesPadY = seriesPadY;
     }
 
     // zoom anchored on center of initial coords
-    public void zoom_old(double zoom) {
-        double xm = (x1 + x2) / 2;
-        double ym = (y1 + y2) / 2;
-        x1 = xm - (xm - x1) / zoom;
-        x2 = xm - (xm - x2) / zoom;
-        y1 = ym - (ym - y1) / zoom;
-        y2 = ym - (ym - y2) / zoom;
-    }
-
-    // zoom anchored on midpoint of current displayed graph
     public void zoom(double zoom) {
-        double dxdp = (x2 - x1) / (displaySize.width - 2 * padX);
-        double dydp = (y2 - y1) / (displaySize.height - 2 * padY);
-        double dx = offsetX * dxdp;
-        double dy = offsetY * dydp;
-        x1 += dx;
-        x2 += dx;
-        y1 += dy;
-        y2 += dy;
         double xm = (x1 + x2) / 2;
         double ym = (y1 + y2) / 2;
         x1 = xm - (xm - x1) * zoom;
         x2 = xm - (xm - x2) * zoom;
         y1 = ym - (ym - y1) * zoom;
         y2 = ym - (ym - y2) * zoom;
-        x1 -= dx;
+    }
+
+    public void zoom_new(double zoom) {
+        double dxdp = (x2 - x1) / (displaySize.width - 2 * padX);
+        double dydp = (y2 - y1) / (displaySize.height - 2 * padY);
+        x1 -= dxdp * offsetX;
+        x2 -= dxdp * offsetX;
+        y1 -= dydp * offsetY;
+        y2 -= dydp * offsetY;
+        double dx = (x2 - x1);
+        double dy = (y2 - y1);
+        dx = (dx * zoom - dx) / 2;
+        dy = (dy * zoom - dy) / 2;
+        x1 += dx;
         x2 -= dx;
-        y1 -= dy;
+        y1 += dy;
         y2 -= dy;
+        offsetX = 0;
+        offsetY = 0;
+        gd.setOffset(0, 0);
     }
 
     public void reset() {
@@ -143,10 +151,8 @@ public class GraphRenderer {
         this.y2 = y2F;
     }
 
-    private int offsetX, offsetY;
-    public void paint(Graphics2D g, int offsetX, int offsetY) {
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
+    private int offsetX = 0, offsetY = 0;
+    public void paint(Graphics2D g) {
         g.fillRect(0, 0, displaySize.width, displaySize.height);
 
         g.setColor(Color.WHITE);

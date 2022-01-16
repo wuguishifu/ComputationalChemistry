@@ -27,7 +27,7 @@ public class GraphDisplay {
                 super.paint(g);
                 Graphics2D g2d = (Graphics2D) g.create();
                 if (renderer != null) {
-                    renderer.paint(g2d, offsetX, offsetY);
+                    renderer.paint(g2d);
                 }
             }
         };
@@ -123,6 +123,12 @@ public class GraphDisplay {
             listener.clearScrollMult();
             renderer.reset();
         }
+        renderer.setOffset(offsetX, offsetY);
+    }
+
+    public void setOffset(int offsetX, int offsetY) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
     }
 
 }
